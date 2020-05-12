@@ -1,0 +1,12 @@
+What should the database "framework" look like?
+--> probably sqlite, but do we want to keep it all in one table?
+	The advantage is that we no longer have to deal with 286 separate files,
+	and SQL commands are pretty well-documented and Alex can probably use them
+	without much trouble if he wants to do data analysis.
+
+	You should easily be able to tell the database whether or not you want
+	data fetched for one company, for a list of companies, or for all of them.
+	The program should then tell you how many changes would be written to
+	the database, and you should be able to "push" the data to the database
+	if you want. The program should also tell you if any companies should be
+	eliminated from the database because they are no longer on the market.
