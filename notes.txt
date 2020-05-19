@@ -10,3 +10,26 @@ What should the database "framework" look like?
 	the database, and you should be able to "push" the data to the database
 	if you want. The program should also tell you if any companies should be
 	eliminated from the database because they are no longer on the market.
+
+
+"Steps":
+1. Finish data input (stock prices, tweets, and articles)
+2. Figure out how to use that data (do we want to have an AI suggest actions for us, have it give predictions, etc)
+3. Technical indicators, maybe?
+4. Some sort of UI so we can see what the hell is going on
+5. Strategies - vertical spreads, portfolio balancing, etc.
+
+stocks: organize by (DATE, TIME, SYMBOL)
+tweets: organize by (DATE, TIME)
+articles: organize by (DATE, TIME)
+
+We basically can't do anything with AlphaVantage's standard API. 5 calls per minute, 500 per day...
+Useless. I doubt we'll be using it for "real-time" analysis. What can we use as sources?
+
+Tweets, for sure. But we need to identify the keywords we look for and the users we want to follow.
+
+Articles? Probably, but I need websites that don't require me to subscribe in order to read more.
+(though there are ways to get around subscriptions)
+
+And finally... WSB? Each "daily" thread has 20k+ comments. We can ignore the specifics of individual positions
+users are holding, scrape all the comments, and identify the general sentiment.

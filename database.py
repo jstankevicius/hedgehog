@@ -24,7 +24,7 @@ def pandas_to_list(index, row):
 def get_symbols():
     """Returns all stock symbols in data//symbols.txt as a list."""
 
-    with open("data//symbols.txt", "r") as symbol_file:
+    with open("symbols.txt", "r") as symbol_file:
         symbol_list = [symbol.rstrip() for symbol in symbol_file.readlines()]
         return symbol_list
 
@@ -90,6 +90,7 @@ class DataManager:
             time.sleep(13)
 
         print("Fetched {} new datapoints".format(len(self.changes)))
+
 
 
     def commit(self):

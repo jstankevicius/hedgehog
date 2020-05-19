@@ -1,2 +1,2 @@
-build:
-	python3 database.py
+stream:
+	python3 tweets.py
