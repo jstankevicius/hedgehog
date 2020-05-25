@@ -1,4 +1,6 @@
-from database import DataLoader
+from database import DataManager
 
-d = DataLoader()
-d.init_db("test.db", "intraday_schema.sql")
+d = DataManager()
+d.connect("data//intraday.db")
+d.fetch()
+d.commit()
