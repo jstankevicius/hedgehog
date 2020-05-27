@@ -1,3 +1,3 @@
 # nothing here!
 
-AV_KEY = "test"
+AV_KEY = "ASDASDDSA"
