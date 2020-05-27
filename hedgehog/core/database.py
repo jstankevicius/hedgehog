@@ -1,7 +1,8 @@
 import sqlite3
 import time
 import os
-from datetime import datetime, timezone
+from datetime import datetime
+from enum import Enum
 from alpha_vantage.timeseries import TimeSeries
 
 
@@ -37,7 +38,6 @@ class DataManager:
     def __init__(self):
         self.last_modified = None
         self.time_series = TimeSeries("J4XLT1RK0S2QK5X0", output_format="pandas")
-        self.symbols = get_symbols()
 
         # Where we store all the changes that would be written to the database.
         self.changes = []
@@ -68,18 +68,30 @@ class DataManager:
         with open(schema_path) as schema:
             self.connection.executescript(schema.read())
 
-    def fetch(self):
-        """Fetches most recent intraday data for every symbol."""
-        # TODO: provide enum argument so we can fetch for one, a set, or all symbols.
+
+    def fetch(self, period, size, symbols=get_symbols()):
+        """Fetches data from the given time period over the given output size, interval, and
+        for the given set of symbols. fetch() then determines the relevant new data and appends
+        it to self.changes."""
 
         print("Database last modified at {}".format(self.last_modified))
         print("Symbol\tFirst\t\t\tMost Recent\t\tChanges")
+
         errors = 0
-        for stock_symbol in self.symbols:
+
+        for stock_symbol in symbols:
+
+            data = None
+
             try:
-                data = self.time_series.get_intraday(symbol=stock_symbol,
-                                                     outputsize="full",
-                                                     interval="5min")[0]
+
+                if period == "intraday":
+                    data = self.time_series.get_intraday(symbol=stock_symbol,
+                                                         outputsize=size,
+                                                         interval="1min")[0]
+                elif period == "daily":
+                    data = self.time_series.get_daily(symbol=stock_symbol,
+                                                      outputsize=size)[0]
 
             except ValueError as error:
                 print(stock_symbol + ": " + str(error))
@@ -131,6 +143,5 @@ class DataManager:
         if self.connection is None:
             raise Exception("No database connected to DataManager. Use connect(db_path).")
 
-        # TODO: resolve unique primary key collisions.
         self.connection.executemany("INSERT INTO prices VALUES (?,?,?,?,?,?,?,?)", self.changes)
         self.connection.commit()
