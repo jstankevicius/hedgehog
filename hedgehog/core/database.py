@@ -62,17 +62,17 @@ class DataManager:
 
 
     def init_db(self, db_path, schema_path):
-        """Creates the initial database file and sets up the schema."""
+        """Given a path to a database file (regardless of whether the file exists or
+        not), connects to the database and executes the schema file."""
         self.connect(db_path)
 
         with open(schema_path) as schema:
             self.connection.executescript(schema.read())
 
 
-    def fetch(self, period, size, symbols=get_symbols()):
-        """Fetches data from the given time period over the given output size, interval, and
-        for the given set of symbols. fetch() then determines the relevant new data and appends
-        it to self.changes."""
+    def fetch(self, period, symbols=get_symbols()):
+        """Fetches data from the given time period over the given set of symbols. 
+        fetch() then determines the relevant new data  and appends it to self.changes."""
 
         print("Database last modified at {}".format(self.last_modified))
         print("Symbol\tFirst\t\t\tMost Recent\t\tChanges")
@@ -87,11 +87,11 @@ class DataManager:
 
                 if period == "intraday":
                     data = self.time_series.get_intraday(symbol=stock_symbol,
-                                                         outputsize=size,
-                                                         interval="1min")[0]
+                                                         outputsize="full",
+                                                         interval="5min")[0]
                 elif period == "daily":
                     data = self.time_series.get_daily(symbol=stock_symbol,
-                                                      outputsize=size)[0]
+                                                      outputsize="full")[0]
 
             except ValueError as error:
                 print(stock_symbol + ": " + str(error))
