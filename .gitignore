@@ -130,3 +130,6 @@ dmypy.json
 
 # the entire data directory:
 hedgehog/core/data/
+
+# our keys:
+hedgehog/core/keys.py
