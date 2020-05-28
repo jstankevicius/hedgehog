@@ -130,3 +130,5 @@ dmypy.json
 
 # Some project-specific stuff:
 hedgehog/core/keys.py
+hedgehog/core/data/databases/*
+hedgehog/core/data/models/*
