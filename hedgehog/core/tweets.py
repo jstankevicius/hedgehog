@@ -1,13 +1,10 @@
 import tweepy
+import core.keys as keys
 
 
-TWITTER_APP_KEY = "K6FUAS27AcSkXrzckLgl3I75d"
-TWITTER_APP_SECRET = "qyVpQnLaltzBWuMs9OSBXybfeH0aNlwsa4OxrAE4UujC9d1TpH"
-TWITTER_KEY = "1258887752822726656-bfDDIelsgWwtiquPmVcz41yVCtK6J0"
-TWITTER_SECRET = "OdZd2GmqC1aiqYu0IfnBL0bK6XvOcCMUsSEh9rY2aBrHn"
 
-auth = tweepy.OAuthHandler(TWITTER_APP_KEY, TWITTER_APP_SECRET)
-auth.set_access_token(TWITTER_KEY, TWITTER_SECRET)
+auth = tweepy.OAuthHandler(keys.TWITTER_APP_KEY, keys.TWITTER_APP_SECRET)
+auth.set_access_token(keys.TWITTER_KEY, keys.TWITTER_SECRET)
 
 api = tweepy.API(auth)
 

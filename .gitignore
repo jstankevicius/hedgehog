@@ -1,5 +1,8 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
+hedgehog/tests/pycache/
+hedgehog/core/pycache/
+
 *.py[cod]
 *$py.class
 

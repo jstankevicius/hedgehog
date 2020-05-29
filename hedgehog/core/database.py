@@ -1,10 +1,11 @@
 import sqlite3
 import time
 import os
+import core.keys as keys
+
 from datetime import datetime
 from enum import Enum
 from alpha_vantage.timeseries import TimeSeries
-
 
 # Helper functions:
 def pandas_to_list(index, row):
@@ -37,7 +38,7 @@ class DataManager:
 
     def __init__(self):
         self.last_modified = None
-        self.time_series = TimeSeries("J4XLT1RK0S2QK5X0", output_format="pandas")
+        self.time_series = TimeSeries(keys.AV_KEY, output_format="pandas")
 
         # Where we store all the changes that would be written to the database.
         self.changes = []
@@ -137,11 +138,9 @@ class DataManager:
     def commit(self):
         """Commits the changes in self.changes to the database."""
 
-        # Currently we don't actually have any code for only writing the new stuff.
-        # This function is more or less a prototype.
-
         if self.connection is None:
             raise Exception("No database connected to DataManager. Use connect(db_path).")
-
+        
+        # The intraday database will have different columns... uGH
         self.connection.executemany("INSERT INTO prices VALUES (?,?,?,?,?,?,?,?)", self.changes)
         self.connection.commit()
