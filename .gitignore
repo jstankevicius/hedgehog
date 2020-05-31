@@ -135,3 +135,6 @@ dmypy.json
 hedgehog/core/keys.py
 hedgehog/core/data/databases/*
 hedgehog/core/data/models/*
+
+# Database files:
+*.db
