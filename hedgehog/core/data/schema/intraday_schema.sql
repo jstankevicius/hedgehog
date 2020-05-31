@@ -3,8 +3,11 @@ DROP INDEX IF EXISTS "symbol_timestamp_idx";
 
 CREATE TABLE prices (
 	"symbol" text,
-	"date" text,
-	"time" text,
+	"year" integer,
+	"month" integer,
+	"day" integer,
+	"hour" integer,
+	"minute" integer,
 	"open" real,
 	"high" real,
 	"low" real,
@@ -12,4 +15,4 @@ CREATE TABLE prices (
 	"volume" integer
 );
 
-CREATE UNIQUE INDEX "symbol_timestamp_idx" ON "prices" ("symbol", "date", "time")
+CREATE UNIQUE INDEX "symbol_timestamp_idx" ON "prices" ("symbol", "year", "month", "day", "hour", "minute")
