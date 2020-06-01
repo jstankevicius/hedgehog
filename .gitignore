@@ -132,9 +132,9 @@ dmypy.json
 .pyre/
 
 # Some project-specific stuff:
-hedgehog/core/keys.py
-hedgehog/core/data/databases/*
-hedgehog/core/data/models/*
+hedgehog/config.py
+data/databases/*
+hedgehog/data/models/*
 
 # Database files:
 *.db
