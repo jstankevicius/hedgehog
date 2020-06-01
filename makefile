@@ -5,4 +5,7 @@ init:
 	pip3 install -r requirements.txt
 
 intraday:
-	python3 hedgehog/tests/fetch_intraday.py
+	python3 -m scripts.fetch_intraday
+
+daily:
+	python3 -m scripts.fetch_daily

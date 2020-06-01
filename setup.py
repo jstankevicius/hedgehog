@@ -11,11 +11,9 @@ setup(
     description="An algorithmic trader.",
     author="Justas Stankevicius",
     author_email="jstankevicius@protonmail.com",
-    packages=["hedgehog", "tests"],
+    packages=["hedgehog", "tests", "scripts"],
     long_description=read("README.md"),
     classifiers=[
         "Development Status :: 1", # "Planning" status
     ],
-
-    scripts=["scripts/fetch_intraday.py"]
 )

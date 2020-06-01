@@ -15,7 +15,7 @@ def index_to_datetime_ints(index):
 
     date_string, time_string = str(index).split()
     date_int_list = [int(n) for n in date_string.split("-")]
-    time_int_list = [int(n) for n in time_string.split(":")]
+    time_int_list = [int(n) for n in time_string.split(":")][:-1]
 
     return date_int_list + time_int_list
 
@@ -117,13 +117,12 @@ class DataManager:
             print("Symbol\tLast refreshed\tFetched rows\tNew rows")
 
         for stock_symbol in symbols:
-            print("HELLO")
 
             data = None
             metadata = None
 
             try:
-                data, metadata = self.time_series.get_daily(symbol=stock_symbol, outputsize="compact")
+                data, metadata = self.time_series.get_daily(symbol=stock_symbol, outputsize="full")
             
             except ValueError as e:
                 print(stock_symbol, e)
