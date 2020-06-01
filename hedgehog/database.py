@@ -12,6 +12,7 @@ def index_to_datetime_ints(index):
     returns the year, month, day, hour, minute as a list of integers. AlphaVantage
     does not allow intra-minute data, so the seconds will always be 00. Hence, the
     seconds place is discarded."""
+
     date_string, time_string = str(index).split()
     date_int_list = [int(n) for n in date_string.split("-")]
     time_int_list = [int(n) for n in time_string.split(":")]
@@ -33,7 +34,7 @@ class DataManager:
     def __init__(self, db_path, schema_path=None):
         """Connects the DataManager object to a database. If the database file does not
         exist, it creates the file. If a schema_path argument is provided (as a string),
-        connect() executes the schema."""
+        the connection object executes the schema."""
 
         self.time_series = TimeSeries(config.AV_KEY, output_format="pandas")
         self.changes = []
@@ -76,6 +77,7 @@ class DataManager:
 
             if row_datetime > self.last_modified:
                 self.changes.append([symbol] + data_list)
+                print([symbol] + data_list)
                 new_rows += 1
 
         return new_rows
@@ -102,10 +104,7 @@ class DataManager:
             new_rows = self.parse_dataframe(stock_symbol, data)
 
             if verbose:
-                print("{}\t{}\t{}\t\t{}".format(stock_symbol, 
-                                                metadata["3. Last Refreshed"], 
-                                                len(data), 
-                                                new_rows))
+                print("{}\t{}\t{}\t\t{}".format(stock_symbol, metadata["3. Last Refreshed"], len(data), new_rows))
 
             time.sleep(TIMEOUT)
 
@@ -118,11 +117,13 @@ class DataManager:
             print("Symbol\tLast refreshed\tFetched rows\tNew rows")
 
         for stock_symbol in symbols:
+            print("HELLO")
+
             data = None
             metadata = None
 
             try:
-                data, metadata = self.time_series.get_daily(symbol=stock_symbol, outputsize="full")
+                data, metadata = self.time_series.get_daily(symbol=stock_symbol, outputsize="compact")
             
             except ValueError as e:
                 print(stock_symbol, e)
@@ -131,9 +132,6 @@ class DataManager:
             new_rows = self.parse_dataframe(stock_symbol, data)
 
             if verbose:
-                print("{}\t{}\t{}\t\t{}".format(stock_symbol, 
-                                                metadata["3. Last Refreshed"], 
-                                                len(data), 
-                                                new_rows))
+                print("{}\t{}\t{}\t\t{}".format(stock_symbol, metadata["3. Last Refreshed"], len(data), new_rows))
 
             time.sleep(TIMEOUT)

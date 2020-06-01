@@ -15,5 +15,7 @@ setup(
     long_description=read("README.md"),
     classifiers=[
         "Development Status :: 1", # "Planning" status
-    ]
+    ],
+
+    scripts=["scripts/fetch_intraday.py"]
 )
