@@ -1,4 +1,5 @@
 DROP TABLE IF EXISTS "prices";
+DROP TABLE IF EXISTS "last_updated";
 DROP INDEX IF EXISTS "symbol_timestamp_idx";
 
 CREATE TABLE prices (
@@ -15,4 +16,9 @@ CREATE TABLE prices (
 	"volume" integer
 );
 
-CREATE UNIQUE INDEX "symbol_timestamp_idx" ON "prices" ("symbol", "year", "month", "day", "hour", "minute")
+CREATE UNIQUE INDEX "symbol_timestamp_idx" ON "prices" ("symbol", "year", "month", "day", "hour", "minute");
+
+CREATE TABLE last_updated (
+	"symbol" text,
+	"time" real
+);

@@ -7,6 +7,14 @@ from datetime import datetime
 from alpha_vantage.timeseries import TimeSeries
 
 
+SYMBOLS = (
+    "FB", "AAPL", "AMZN", "NFLX", "GOOG", "TSLA", "SHOP", "SPOT", "NVDA", "MSFT", "AMD", "SQ", 
+    "ROKU", "DAL", "AAL", "UAL", "JPM", "NCLH", "CCL", "BAC", "ABBV", "GILD", "XOM", "PSX", "ZM",
+    "BABA", "JNJ", "WMT", "HD", "PFE", "DIS", "MRK", "NKE", "MCD", "COST", "GSK", "CVS", "BA", 
+    "BKNG", "CAT", "UBER", "MU", "WBA", "WDAY", "LULU", "CMG", "TWTR", "PANW", "LUV", "MDB"
+)
+
+
 def index_to_datetime_ints(index):
     """Given some string representing a datetime in the form YYYY-MM-DD HH:MM:SS,
     returns the year, month, day, hour, minute as a list of integers. AlphaVantage
@@ -20,15 +28,6 @@ def index_to_datetime_ints(index):
     return date_int_list + time_int_list
 
 
-# In the future, I can probably just import a list from somewhere.
-def get_symbols():
-    """Returns all stock symbols in data//symbols.txt as a list."""
-
-    with open("data//symbols.txt", "r") as symbol_file:
-        symbol_list = [symbol.rstrip() for symbol in symbol_file.readlines()]
-        return symbol_list
-
-
 class DataManager:
 
     def __init__(self, db_path, schema_path=None):
@@ -38,17 +37,7 @@ class DataManager:
 
         self.time_series = TimeSeries(config.AV_KEY, output_format="pandas")
         self.changes = []
-        self.last_modified = datetime.fromtimestamp(0)
-
-        try:
-            statbuf = os.stat(db_path)
-            self.last_modified = datetime.fromtimestamp(statbuf.st_mtime)
-
-        except FileNotFoundError:
-            print(db_path, "does not exist, sqlite3.connect() will create file...")
-        
         self.connection = sqlite3.connect(db_path)
-
 
         # execute schema:
         if schema_path is not None:
@@ -60,77 +49,99 @@ class DataManager:
         """Returns all new fetched rows as an array."""
         return self.changes
 
-    # Is directly returning the connection object bad practice? Probably.
-    def get_connection(self):
-        """Returns the object's connection as an object."""
-        return self.connection
 
+    def parse_changes_from_df(self, symbol, data_frame):
+        """Given a symbol (string) and pandas DataFrame with the symbol's price time series, parses
+        the DataFrame and appends rows that are not yet in the database to self.changes."""
 
-    def parse_dataframe(self, symbol, data):
         new_rows = 0
 
-        for index, row in data.iterrows():
+        # Grab the row from last_updated_utc where the symbol matches. There should only be one row
+        # per symbol. The second element is the UTC time at which the symbol was last modified. If
+        # an empty tuple is returned, we treat last modified date as UTC time 0.
+        row = self.query_db("SELECT * FROM last_updated WHERE symbol=?", (symbol,), one=True)
+        last_utc = row[1] if row else 0
+        last_modified_date = datetime.fromtimestamp(last_utc)
 
-            # Intraday datapoints contain both the date and time
+        for index, row in data_frame.iterrows():
+
             data_list = index_to_datetime_ints(index) + list(row)
             row_datetime = datetime(*data_list[:5])
 
-            if row_datetime > self.last_modified:
+            if row_datetime > last_modified_date:
                 self.changes.append([symbol] + data_list)
-                print([symbol] + data_list)
                 new_rows += 1
+
+        # There are cases where we could be parsing 0 rows. In that case, we will be making no new
+        # additions to the symbol's prices, so the entry in last_updated should not be modified.
+        # If this is a new symbol, we'll need to use INSERT INTO. If this symbol already exists
+        # in the table, we'll need to use UPDATE.
+        if len(data_frame) > 0:
+            cur_time = time.time()
+
+            if last_utc == 0:
+                self.query_db("INSERT INTO last_updated VALUES (?, ?)", (symbol, cur_time))
+            
+            else:
+                self.query_db("UPDATE last_updated SET time = ? WHERE symbol = ?", (cur_time, symbol))
 
         return new_rows
 
 
-    def fetch_intraday(self, symbols=[], verbose=False):
+    def get_prices(self, symbols, period, verbose=False):
+        """For all provided symbols, fetches data from AlphaVantage (assumed Standard API), parses
+        each symbol's historic prices, and appends to self.changes the rows for every symbol that
+        have not yet been written to the database."""
+
         TIMEOUT = 0 if len(symbols) == 1 else 13
 
         if verbose:
-            print("Database last modified at {}".format(self.last_modified))
             print("Symbol\tLast refreshed\tFetched rows\tNew rows")
 
         for stock_symbol in symbols:
-            data = None
+            data_frame = None
             metadata = None
 
             try:
-                data, metadata = self.time_series.get_intraday(symbol=stock_symbol, interval="5min", outputsize="full")
+
+                if period == "intraday":
+                    data_frame, metadata = self.time_series.get_intraday(symbol=stock_symbol, interval="5min", outputsize="full")
+
+                elif period == "daily":
+                    data_frame, metadata = self.time_series.get_daily(symbol=stock_symbol, outputsize="full")
+
+                else:
+                    raise Exception("Invalid period. Provide either 'intraday' or 'daily'.")
             
             except ValueError as e:
                 print(stock_symbol, e)
                 continue
 
-            new_rows = self.parse_dataframe(stock_symbol, data)
+            new_rows = self.parse_changes_from_df(stock_symbol, data_frame)
 
             if verbose:
-                print("{}\t{}\t{}\t\t{}".format(stock_symbol, metadata["3. Last Refreshed"], len(data), new_rows))
+                print("{}\t{}\t{}\t\t{}".format(stock_symbol, metadata["3. Last Refreshed"], len(data_frame), new_rows))
 
             time.sleep(TIMEOUT)
 
 
-    def fetch_daily(self, symbols=[], verbose=False):
-        TIMEOUT = 0 if len(symbols) == 1 else 13
+    def query_db(self, query, args=(), one=False):
+        """Using the DataManager's connection to the database, executes the given query with the
+        provided arguments and returns the results (if any are required). If 'one' is set to True,
+        returns only the first result (or an empty tuple)."""
 
-        if verbose:
-            print("Database last modified at {}".format(self.last_modified))
-            print("Symbol\tLast refreshed\tFetched rows\tNew rows")
+        cur = self.connection.execute(query, args)
+        query_list = cur.fetchall()
 
-        for stock_symbol in symbols:
+        cur.close()
+        self.connection.commit()
 
-            data = None
-            metadata = None
+        return (query_list[0] if query_list else ()) if one else query_list
 
-            try:
-                data, metadata = self.time_series.get_daily(symbol=stock_symbol, outputsize="full")
-            
-            except ValueError as e:
-                print(stock_symbol, e)
-                continue
 
-            new_rows = self.parse_dataframe(stock_symbol, data)
+    def commit_changes(self):
+        """Inserts all rows in self.changes into the database."""
 
-            if verbose:
-                print("{}\t{}\t{}\t\t{}".format(stock_symbol, metadata["3. Last Refreshed"], len(data), new_rows))
-
-            time.sleep(TIMEOUT)
+        # Preset number of columns. Bad practice? Probably.
+        self.connection.executemany("INSERT INTO prices VALUES (?,?,?,?,?,?,?,?,?,?,?)", self.changes)
+        self.connection.commit()
