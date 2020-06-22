@@ -1,2 +1,2 @@
-# upstonk
-"what's upstonk" "they're not, i'm bankrupt"
+# hedgehog
+Get it? Hedging? Hedge funds? Hedgehog?
