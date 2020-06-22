@@ -9,3 +9,6 @@ intraday:
 
 daily:
 	python3 -m scripts.fetch_daily
+
+backtest:
+	python3 -m scripts.backtesting

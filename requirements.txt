@@ -1,1 +1,4 @@
-asdf
+alpha_vantage
+numpy
+pyflux
+pandas
