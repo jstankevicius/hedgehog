@@ -16,7 +16,7 @@ print("Start:", b.get_capital())
 b.next_state()
 b.next_state()
 
-for i in range(1000):
+for i in range(4000):
     a.act()
     b.next_state()
 

@@ -102,6 +102,9 @@ class BacktestUniverse(Universe):
         self.capital -= self.cur_state()["Close"]*shares
         self.portfolio[symbol] += shares
 
+    def cur_date(self):
+        return self.history.index.values[self.cur_index]
+
     def sell(self, symbol, shares):
         assert self.portfolio[symbol] > 0
 

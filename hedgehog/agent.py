@@ -1,6 +1,7 @@
 import hedgehog.database as db
 import numpy as np
 import pandas as pd
+import math
 from pprint import pprint
 
 class Agent:
@@ -13,20 +14,21 @@ class Agent:
         dollar, we sell everything we have. Otherwise, we do nothing."""
 
         history = self.universe.get_history()
-        idx = history.iloc 
+        today = history.iloc[-1]
+        yesterday = history.iloc[-2]
         
-        if round(idx[-1]["Close"]) > round(idx[-2]["Close"]) and self.universe.get_capital() > idx[-1]["Close"]*50:
+        if today["Close"] > yesterday["Close"] and self.universe.get_capital() > today["Close"]*50:
             self.universe.buy("MSFT", 50)
-            print("Bought at", idx[-1]["Close"])
+            print(self.universe.cur_date(), "Bought at", today["Close"])
 
-        elif round(idx[-1]["Close"]) < round(idx[-2]["Close"]) and self.universe.get_portfolio()["MSFT"] > 0:
+        elif today["Close"] < yesterday["Close"] and self.universe.get_portfolio()["MSFT"] > 0:
 
             # Dump entire portfolio
             self.universe.sell("MSFT", self.universe.get_portfolio()["MSFT"])
-            print("Sold at", idx[-1]["Close"])
+            print(self.universe.cur_date(), "Sold at", today["Close"])
 
         else:
-            print("Did nothing")
+            print(self.universe.cur_date(), "Did nothing")
             pass
 
     def link_universe(self, universe):
