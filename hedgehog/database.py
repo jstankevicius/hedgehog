@@ -123,7 +123,7 @@ class DataManager:
                     data_frame, metadata = self.time_series.get_intraday(symbol=stock_symbol, interval="5min", outputsize="full")
 
                 elif period == "daily":
-                    data_frame, metadata = self.time_series.get_daily(symbol=stock_symbol, outputsize="full")
+                    data_frame, metadata = self.time_series.get_daily_adjusted(symbol=stock_symbol, outputsize="full")
 
                 else:
                     raise Exception("Invalid period. Provide either 'intraday' or 'daily'.")
@@ -162,5 +162,5 @@ class DataManager:
         """
 
         # Preset number of columns. Bad practice? Probably.
-        self.connection.executemany("INSERT INTO prices VALUES (?,?,?,?,?,?,?)", self.changes)
+        self.connection.executemany("INSERT INTO prices VALUES (?,?,?,?,?,?,?,?,?,?)", self.changes)
         self.connection.commit()

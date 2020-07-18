@@ -9,7 +9,10 @@ CREATE TABLE prices (
 	"high" real,
 	"low" real,
 	"close" real,
-	"volume" integer
+	"adjusted_close" real,
+	"volume" integer,
+	"dividend_amount" real,
+	"split_coefficient" real
 );
 
 CREATE UNIQUE INDEX "symbol_timestamp_idx" ON "prices" ("symbol", "time");
