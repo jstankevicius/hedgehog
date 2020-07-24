@@ -16,9 +16,9 @@ print("Start:", b.get_capital())
 b.next_state()
 b.next_state()
 
-for i in range(2525):
+for i in range(5029):
     a.act()
     b.next_state()
 
 
-print("End:", b.get_capital() + b.get_portfolio()["TSLA"]*b.cur_state()["Close"])
+print("End:", b.get_capital() + b.get_portfolio()["AAPL"]*b.cur_state()["Close"])

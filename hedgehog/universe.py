@@ -74,10 +74,10 @@ class BacktestUniverse(Universe):
         m = db.DataManager("data//databases//daily_adjusted.db")
         self.cur_index = 0
         self.capital = 100000
-        self.portfolio = {"TSLA": 0}
+        self.portfolio = {"AAPL": 0}
 
-        results = m.query_db("SELECT open, high, low, close, volume FROM prices WHERE symbol=? ORDER BY time", ("TSLA",))
-        time_idx = [datetime.fromtimestamp(n[0]) for n in m.query_db("SELECT TIME FROM prices WHERE symbol=? ORDER BY time", ("TSLA",))]
+        results = m.query_db("SELECT open, high, low, close, volume FROM prices WHERE symbol=? ORDER BY time", ("AAPL",))
+        time_idx = [datetime.fromtimestamp(n[0]) for n in m.query_db("SELECT TIME FROM prices WHERE symbol=? ORDER BY time", ("AAPL",))]
         
         self.history = pd.DataFrame(results, index=time_idx, columns=["Open", "High", "Low", "Close", "Volume"])
     
@@ -91,7 +91,7 @@ class BacktestUniverse(Universe):
         self.cur_index += 1
 
     def get_history(self):
-        return self.history.iloc[:self.cur_index]
+        return self.history.iloc[:self.cur_index] + 1
 
     def cur_state(self):
         return self.history.iloc[self.cur_index]
